@@ -3,9 +3,65 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+  <title>Take a Quiz</title>
+  <link rel="stylesheet" href="navbar.css">
+  <link rel="stylesheet" href="cards.css">
+  <link rel="stylesheet" href="quiz.css">
+  <link rel="stylesheet" href="general.css">
 </head>
 <body>
-  
+  <ul class="topnav">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="add-question.html">Add questions</a></li>
+    <li><a href="make-a-quiz.html">Create a quiz</a></li>
+    <li><a class="active" href="take-a-quiz.html">Take a quiz</a></li>
+    <li class="right"><a href="#about">About</a></li>
+  </ul>
+
+  <div id="quizList" class="cards">
+    <!-- Quizzes will be dynamically loaded here -->
+  </div>
+
+  <script>
+    const host = "http://localhost:8080"; // Adjust based on your backend server
+
+    async function fetchQuizzes() {
+      try {
+        const response = await fetch(`${host}/quizzes`);
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const quizzes = await response.json();
+        displayQuizzes(quizzes);
+      } catch (error) {
+        console.error('There has been a problem with your fetch operation:', error);
+      }
+    }
+
+    function displayQuizzes(quizzes) {
+      const quizListDiv = document.getElementById('quizList');
+      quizzes.forEach(quiz => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <div class="container">
+            <h4><b>Quiz ID: ${quiz.id}</b></h4>
+            <p>${quiz.title}</p>
+            <p>Number of Questions: ${quiz.questionIds.length}</p>
+          </div>
+        `;
+
+        // Add click event listener for redirection
+        card.addEventListener('click', () => {
+          window.location.href = `quiz.html?quizId=${quiz.id}`;
+        });
+
+        quizListDiv.appendChild(card);
+      });
+    }
+
+    fetchQuizzes(); // Call the function to load quizzes when the page loads
+  </script>
 </body>
 </html>
+

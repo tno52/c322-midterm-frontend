@@ -1,0 +1,63 @@
+body {
+    display: flex;
+    flex-direction: column; /* Align items in a column */
+    justify-content: flex-start; /* Start from top */
+    align-items: center; /* Center horizontally */
+    min-height: 100vh;
+    margin: 0; /* Remove default margin */
+    padding-top: 60px; /* Add padding at the top to account for the fixed navbar height */
+}
+
+#completionMessage {
+    width: 100%; /* Full width to center the text */
+    max-width: 600px; /* Adjust this width as per your content */
+    text-align: center; /* Center the text */
+    position: absolute; /* Position it absolutely within the body */
+    top: 50px; /* Adjust this value based on your navbar's actual height */
+    left: 50%; /* Center based on full width */
+    transform: translateX(-50%); /* Adjust horizontally centered */
+    padding: 20px; /* Add some padding */
+    box-sizing: border-box; /* Include padding in width calculation */
+}
+  
+  /* Style the wrapper */
+  .content-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center its children (card and controls) horizontally */
+    width: 100%; /* Take up the full width of its container */
+    max-width: 600px; /* Adjust max width as needed */
+  }
+
+  .controls {
+    text-align: center; /* Center the buttons inside the controls container */
+    margin: auto;
+    max-width: 600px; /* Should match the card's max width for alignment */
+    padding: 20px;
+  }
+  
+  /* Style the buttons */
+  .controls button {
+    padding: 10px 20px; /* Add padding inside the buttons for better touch */
+    margin: 0 10px; /* Space between buttons */
+    cursor: pointer; /* Change cursor to pointer to indicate it's clickable */
+  }
+  
+  /* Additional styling for the Previous button to handle visibility */
+  #prevBtn.hide {
+    display: none; /* Hide the button */
+  }
+
+  .topnav {
+    width: 100%; /* Ensure full width */
+    display: none; /* Start hidden */
+    position: fixed; /* Fixed at the top */
+    top: 0;
+    left: 0;
+    z-index: 1000; /* Ensure navbar is above other content */
+}
+  
+  /* When showing the navbar */
+  .show {
+    display: flex !important; /* Use flex to ensure items are properly aligned */
+  }

@@ -3,9 +3,122 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+  <title>Quiz</title>
+  <link rel="stylesheet" href="quiz-page.css"> <!-- Ensure this CSS has your styles -->
+  <link rel="stylesheet" href="cards.css">
+  <link rel="stylesheet" href="navbar.css">
 </head>
 <body>
-  
+  <ul class="topnav">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="add-question.html">Add questions</a></li>
+    <li><a href="make-a-quiz.html">Create a quiz</a></li>
+    <li><a class="active" href="take-a-quiz.html">Take a quiz</a></li>
+    <li class="right"><a href="#about">About</a></li>
+  </ul>
+
+  <div id="completionMessage" style="display: none; text-align: center; margin-top: 20px;">
+    <!-- Message will be dynamically inserted here -->
+  </div>
+
+  <div class="content-wrapper">
+    <div id="questionCard" class="card">
+      <!-- Question content, including the image, will be loaded here dynamically -->
+    </div>
+    <div class="controls">
+      <button id="prevBtn" class="hide">Previous</button>
+      <span id="questionIndicator">Question 1 of n</span>
+      <button id="nextBtn">Next</button>
+    </div>
+  </div>
+
+  <script>
+    const host = "http://localhost:8080"; // Your backend host
+    let currentQuestionIndex = 0;
+    let questions = []; // This will hold your question objects
+
+    // Function to parse quiz ID from URL
+    function getQuizIdFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('quizId');
+    }
+
+    // Fetch questions for the quiz and display the first question
+    let quizTitle = ""; // Global variable to store the quiz title
+
+    async function fetchQuestions() {
+      const quizId = getQuizIdFromUrl();
+      const response = await fetch(`${host}/quizzes/${quizId}`);
+      const quiz = await response.json();
+      questions = quiz.questions; // Directly use the 'questions' array from the quiz object
+      quizTitle = quiz.title; // Store the quiz title
+      displayQuestion();
+    }
+
+    // Display the current question
+    function displayQuestion() {
+      const question = questions[currentQuestionIndex];
+      document.getElementById('questionCard').innerHTML = `
+        <img src="${host}/questions/${question.id}/image" alt="Question image" style="max-width:100%; height:auto;">
+        <h4>${question.description}</h4>
+        ${question.choices.map(choice => `
+          <label>
+            <input type="radio" name="questionChoice" value="${choice}">
+            ${choice}
+          </label>
+        `).join('<br>')}
+      `;
+      document.getElementById('questionIndicator').innerText = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+      document.getElementById('prevBtn').classList.toggle('hide', currentQuestionIndex === 0);
+      document.getElementById('nextBtn').innerText = currentQuestionIndex === questions.length - 1 ? 'Finish' : 'Next';
+      question.choices.forEach((choice, index) => {
+    document.querySelector(`input[name="questionChoice"][value="${choice}"]`).addEventListener('change', (e) => {
+      questions[currentQuestionIndex].userChoice = e.target.value; // Store user choice in the question object
+    });
+  });
+    }
+
+    // Handle clicking the "Next" button
+    document.getElementById('nextBtn').addEventListener('click', () => {
+      if (currentQuestionIndex < questions.length - 1) {
+        currentQuestionIndex++;
+        displayQuestion();
+      } else {
+        finishQuiz();
+      }
+    });
+
+    // Handle clicking the "Previous" button
+    document.getElementById('prevBtn').addEventListener('click', () => {
+      if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        displayQuestion();
+      }
+    });
+
+    // Finish the quiz
+    function finishQuiz() {
+      // Calculate the score
+      let score = questions.reduce((acc, question) => acc + (question.userChoice === question.answer ? 1 : 0), 0);
+
+      // Construct and display the completion message
+      const message = `
+        <h2>You completed the quiz "${quizTitle}".</h2>
+        <p>You scored ${score} out of ${questions.length}.</p>
+      `;
+      document.getElementById('completionMessage').innerHTML = message;
+      document.getElementById('completionMessage').style.display = 'block'; // Make the message visible
+
+      // Show the navbar
+      document.querySelector('.topnav').classList.add('show');
+      
+      // Hide the question card and controls
+      document.getElementById('questionCard').style.display = 'none';
+      document.querySelector('.controls').style.display = 'none';
+      }
+
+
+    fetchQuestions(); // Call this function when the page loads
+  </script>
 </body>
 </html>

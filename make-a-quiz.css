@@ -2,20 +2,46 @@
     box-sizing: border-box;
   }
 
+  .question-bank-header h1,
+.question-bank-header h2 {
+  margin: 0;
+  padding: 0.5rem 0; /* Adjust as needed */
+}
+
   .questions {
     width: 70%;
     float: left;
     padding: 15px;
     border: 1px solid orange;
     margin-right: 5%;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Adjust min and max sizes as needed */
+    grid-gap: 1rem;
+    padding: 1rem;
   }
   
   .quiz {
     width: 25%;
     float: right;
     padding: 15px;
-    border: 1px solid yellow;
+    border: 1px solid black;
+    text-align: center;
   }
+
+.quiz form > * {
+    margin-bottom: 10px; /* Add some space between your elements */
+    display: block; /* This makes each element take a full row */
+}
+
+.quiz input[type="text"] {
+    margin: 0 auto;
+    display: block; /* This centers the text input */
+}
+
+.quiz button {
+    margin: 10px auto;
+    display: block; /* This centers the buttons */
+}
 
   
 

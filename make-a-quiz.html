@@ -3,9 +3,188 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+  <title>Create Quiz</title>
+  <link rel="stylesheet" href="navbar.css">
+  <link rel="stylesheet" href="make-a-quiz.css">
+  <link rel="stylesheet" href="cards.css">
 </head>
+
+
 <body>
+  <ul class="topnav">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="add-question.html">Add questions</a></li>
+    <li><a class="active" href="make-a-quiz.html">Create a quiz</a></li>
+    <li><a href="take-a-quiz.html">Take a quiz</a></li>
+    <li class="right"><a href="#about">About</a></li>
+  </ul>
+
+  <div class="question-bank-header">
+    <h1>Question Bank</h1>
+    <h2>Click on a question to add it to the quiz</h2>
+  </div>
+  <div class="questions">
+    <!-- Questions will be dynamically loaded here -->
+  </div>
+
+  <div class="quiz">
+    <h2>Create a Quiz (<span id="questionCount">0</span> Questions)</h2>
+    <form id="quizForm">
+        <label for="quizTitle">Quiz Title:</label>
+        <input type="text" id="quizTitle" name="quizTitle" placeholder="Enter quiz title here" required>
+        <button type="button" onclick="saveQuiz()">Save Changes</button>
+        <button type="button" onclick="saveAndCreateNewQuiz()">Save and Create New Quiz</button>
+        <p>Click on any questions you wish to remove from the Quiz</p>
+        <!-- Added questions will be displayed here -->
+        <div id="addedQuestions">
+            <!-- Dynamically loaded questions will appear here -->
+        </div>
+    </form>
+</div>
+
+<script>
+  let host = "http://localhost:8080";
+  let questions = [];
+  let selectedQuestions = []; // Array to track selected questions
+  let currentQuizId = null;
+
+  displayTheQuestions();
+
+  async function getAll() {
+    let response = await fetch(host + "/questions");
+    let result = await response.json();
+    return result;
+  }
+
+  async function displayTheQuestions() {
+  let questionBankDiv = document.querySelector('.questions');
+  let quizDiv = document.getElementById('addedQuestions'); // Get the quiz div for later use
+
+  // Fetch the questions from the server
+  questions = await getAll();
+
+  // Remove only the existing question cards, preserving other elements like headers
+  questionBankDiv.querySelectorAll('.card').forEach(card => card.remove());
+
+  // Iterate over the questions and create cards for each one
+  questions.forEach(question => {
+    // Create a div element for the card
+    let div = document.createElement("div");
+    div.className = "card";
+    div.id = `question_${question.id}`; // Unique ID for the card div
+
+    // Set the inner HTML of the card with question details and choices
+    let innerHtml = `
+      <img src="${host}/questions/${question.id}/image" alt="Question image" style="width:100%">
+      <div class="container">
+        <h4><b>${question.description}</b></h4>
+        <p>${question.choices.map((choice, index) => `<input type="radio" name="answer${question.id}" value="${choice}"> ${choice}`).join('<br>')}</p>
+      </div>
+    `;
+    div.innerHTML = innerHtml;
+
+    // Attach an onclick event to the card to handle selection
+    div.onclick = function() {
+      if (selectedQuestions.includes(question.id)) {
+        // If the question is already selected, remove it from the quiz
+        removeQuestionFromQuiz(question.id);
+      } else {
+        // If the question is not selected, add it to the quiz
+        addQuestionToQuiz(question.id);
+      }
+    };
+
+    // Append the card to the question bank div
+    questionBankDiv.appendChild(div);
+  });
+}
+
+// Rest of your JavaScript functions
+// ...
+
+
+  function addQuestionToQuiz(questionId) {
+    let card = document.getElementById(`question_${questionId}`);
+    if (card) {
+      document.getElementById('addedQuestions').appendChild(card); // Move the card to the quiz container
+      selectedQuestions.push(questionId); // Track the selected question
+      updateQuestionCount(); // Update the count of questions in the quiz
+    }
+  }
+
+  function removeQuestionFromQuiz(questionId) {
+    let index = selectedQuestions.indexOf(questionId);
+    if (index > -1) {
+      selectedQuestions.splice(index, 1); // Remove from the selected questions array
+      document.querySelector('.questions').appendChild(document.getElementById(`question_${questionId}`)); // Move the card back to the questions container
+      updateQuestionCount(); // Update the count of questions in the quiz
+    }
+  }
+
+  function updateQuestionCount() {
+    document.getElementById('questionCount').textContent = selectedQuestions.length; // Update the displayed count
+  }
   
+  async function saveQuiz() {
+  const quizTitle = document.getElementById('quizTitle').value;
+  const questionIds = selectedQuestions; // Assuming this is already an array of selected question IDs
+
+  if (!quizTitle || questionIds.length === 0) {
+    alert('Please provide a title and select at least one question.');
+    return;
+  }
+
+  const quizData = {
+    title: quizTitle,
+    questionIds: questionIds
+  };
+
+  if (currentQuizId === null) {
+    // Create a new quiz
+    try {
+      const response = await fetch(`${host}/quizzes`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(quizData)
+      });
+      if (response.ok) {
+        const id = await response.json();
+        currentQuizId = id; // Save the created quiz ID for potential updates
+        alert('Quiz created successfully');
+      } else {
+        alert('Failed to create quiz');
+      }
+    } catch (error) {
+      console.error('Error creating quiz:', error);
+      alert('Error creating quiz');
+    }
+  } else {
+    // Update the existing quiz
+    try {
+      const response = await fetch(`${host}/quizzes/${currentQuizId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ questionIds: questionIds }) // For updates, only questionIds are needed
+      });
+      if (response.ok) {
+        alert('Quiz updated successfully');
+      } else {
+        alert('Failed to update quiz');
+      }
+    } catch (error) {
+      console.error('Error updating quiz:', error);
+      alert('Error updating quiz');
+    }
+  }
+}
+
+async function saveAndCreateNewQuiz() {
+  await saveQuiz(); // This function handles both creating and updating
+  location.reload(); // Refresh the page to reset the form and selectedQuestions array
+}
+
+
+</script>
+
 </body>
 </html>
