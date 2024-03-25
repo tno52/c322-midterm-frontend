@@ -3,10 +3,10 @@
   }
 
   .question-bank-header h1,
-.question-bank-header h2 {
-  margin: 0;
-  padding: 0.5rem 0; /* Adjust as needed */
-}
+  .question-bank-header h2 {
+    margin: 0;
+    padding: 0.5rem 0; 
+  }
 
   .questions {
     width: 70%;
@@ -15,7 +15,7 @@
     border: 1px solid orange;
     margin-right: 5%;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Adjust min and max sizes as needed */
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); 
     grid-gap: 1rem;
     padding: 1rem;
   }
@@ -29,18 +29,18 @@
   }
 
 .quiz form > * {
-    margin-bottom: 10px; /* Add some space between your elements */
-    display: block; /* This makes each element take a full row */
+    margin-bottom: 10px; 
+    display: block; 
 }
 
 .quiz input[type="text"] {
     margin: 0 auto;
-    display: block; /* This centers the text input */
+    display: block; 
 }
 
 .quiz button {
     margin: 10px auto;
-    display: block; /* This centers the buttons */
+    display: block; 
 }
 
   

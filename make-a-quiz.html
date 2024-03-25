@@ -43,9 +43,9 @@
 </div>
 
 <script>
-  let host = "http://localhost:8080";
+  let host = "https://midterm-tno52.onrender.com";
   let questions = [];
-  let selectedQuestions = []; // Array to track selected questions
+  let selectedQuestions = []; // tracks selected questions
   let currentQuizId = null;
 
   displayTheQuestions();
@@ -58,22 +58,20 @@
 
   async function displayTheQuestions() {
   let questionBankDiv = document.querySelector('.questions');
-  let quizDiv = document.getElementById('addedQuestions'); // Get the quiz div for later use
+  let quizDiv = document.getElementById('addedQuestions'); 
 
-  // Fetch the questions from the server
+  // gets the questions
   questions = await getAll();
 
-  // Remove only the existing question cards, preserving other elements like headers
+  // gets rid of only current q cards 
   questionBankDiv.querySelectorAll('.card').forEach(card => card.remove());
 
-  // Iterate over the questions and create cards for each one
+  
   questions.forEach(question => {
-    // Create a div element for the card
     let div = document.createElement("div");
     div.className = "card";
-    div.id = `question_${question.id}`; // Unique ID for the card div
+    div.id = `question_${question.id}`; 
 
-    // Set the inner HTML of the card with question details and choices
     let innerHtml = `
       <img src="${host}/questions/${question.id}/image" alt="Question image" style="width:100%">
       <div class="container">
@@ -83,54 +81,50 @@
     `;
     div.innerHTML = innerHtml;
 
-    // Attach an onclick event to the card to handle selection
+    // handles card selection
     div.onclick = function() {
       if (selectedQuestions.includes(question.id)) {
-        // If the question is already selected, remove it from the quiz
+        // if q selected, removes 
         removeQuestionFromQuiz(question.id);
       } else {
-        // If the question is not selected, add it to the quiz
+        //if q is not selected, adds it 
         addQuestionToQuiz(question.id);
       }
     };
 
-    // Append the card to the question bank div
+    //adds q to question bank 
     questionBankDiv.appendChild(div);
   });
 }
 
-// Rest of your JavaScript functions
-// ...
-
-
   function addQuestionToQuiz(questionId) {
     let card = document.getElementById(`question_${questionId}`);
     if (card) {
-      document.getElementById('addedQuestions').appendChild(card); // Move the card to the quiz container
-      selectedQuestions.push(questionId); // Track the selected question
-      updateQuestionCount(); // Update the count of questions in the quiz
+      document.getElementById('addedQuestions').appendChild(card); 
+      selectedQuestions.push(questionId); 
+      updateQuestionCount(); 
     }
   }
 
   function removeQuestionFromQuiz(questionId) {
     let index = selectedQuestions.indexOf(questionId);
     if (index > -1) {
-      selectedQuestions.splice(index, 1); // Remove from the selected questions array
-      document.querySelector('.questions').appendChild(document.getElementById(`question_${questionId}`)); // Move the card back to the questions container
-      updateQuestionCount(); // Update the count of questions in the quiz
+      selectedQuestions.splice(index, 1); // remove q from array 
+      document.querySelector('.questions').appendChild(document.getElementById(`question_${questionId}`)); // moves card back 
+      updateQuestionCount(); // update count 
     }
   }
 
   function updateQuestionCount() {
-    document.getElementById('questionCount').textContent = selectedQuestions.length; // Update the displayed count
+    document.getElementById('questionCount').textContent = selectedQuestions.length; 
   }
   
   async function saveQuiz() {
   const quizTitle = document.getElementById('quizTitle').value;
-  const questionIds = selectedQuestions; // Assuming this is already an array of selected question IDs
+  const questionIds = selectedQuestions; 
 
   if (!quizTitle || questionIds.length === 0) {
-    alert('Please provide a title and select at least one question.');
+    alert('Please Provide a title and atleast one Question');
     return;
   }
 
@@ -140,7 +134,6 @@
   };
 
   if (currentQuizId === null) {
-    // Create a new quiz
     try {
       const response = await fetch(`${host}/quizzes`, {
         method: 'POST',
@@ -149,7 +142,7 @@
       });
       if (response.ok) {
         const id = await response.json();
-        currentQuizId = id; // Save the created quiz ID for potential updates
+        currentQuizId = id; 
         alert('Quiz created successfully');
       } else {
         alert('Failed to create quiz');
@@ -159,12 +152,11 @@
       alert('Error creating quiz');
     }
   } else {
-    // Update the existing quiz
     try {
       const response = await fetch(`${host}/quizzes/${currentQuizId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ questionIds: questionIds }) // For updates, only questionIds are needed
+        body: JSON.stringify({ questionIds: questionIds }) 
       });
       if (response.ok) {
         alert('Quiz updated successfully');
@@ -179,8 +171,8 @@
 }
 
 async function saveAndCreateNewQuiz() {
-  await saveQuiz(); // This function handles both creating and updating
-  location.reload(); // Refresh the page to reset the form and selectedQuestions array
+  await saveQuiz(); 
+  location.reload(); 
 }
 
 

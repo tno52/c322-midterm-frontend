@@ -23,18 +23,18 @@
   </div>
 
   <script>
-    const host = "http://localhost:8080"; // Adjust based on your backend server
+    const host = "https://midterm-tno52.onrender.com"; 
 
     async function fetchQuizzes() {
       try {
         const response = await fetch(`${host}/quizzes`);
         if (!response.ok) {
-          throw new Error('Network response was not ok');
+          throw new Error('Network response was bad');
         }
         const quizzes = await response.json();
         displayQuizzes(quizzes);
       } catch (error) {
-        console.error('There has been a problem with your fetch operation:', error);
+        console.error('There is a problem fetch operation:', error);
       }
     }
 
@@ -51,7 +51,6 @@
           </div>
         `;
 
-        // Add click event listener for redirection
         card.addEventListener('click', () => {
           window.location.href = `quiz.html?quizId=${quiz.id}`;
         });
@@ -60,7 +59,7 @@
       });
     }
 
-    fetchQuizzes(); // Call the function to load quizzes when the page loads
+    fetchQuizzes(); 
   </script>
 </body>
 </html>
